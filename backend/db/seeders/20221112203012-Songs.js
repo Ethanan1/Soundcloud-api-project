@@ -9,7 +9,7 @@ module.exports = {
       albumId: 1,
       userId: 1,
       title: "Circo Loco",
-      previewImage: 'image_Circo_Loco',
+      previewImage: 'https://images.genius.com/31496d46a302dd9b55416525688ac9d9.1000x1000x1.png',
       url: "",
       description: "Track 1"
     },
@@ -17,8 +17,8 @@ module.exports = {
       id: 2,
       albumId: 2,
       userId: 2,
-      title: "Under the Influence",
-      previewImage: 'image_Under_the_Influence',
+      title: "https://i1.sndcdn.com/artworks-fx4FBj9P88v3pwfY-eSbTqA-t500x500.jpg",
+      previewImage: '',
       description: "Track 2"
     }
   ], {});
