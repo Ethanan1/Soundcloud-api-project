@@ -21,46 +21,35 @@ const editComment = (comment) => {
   };
 };
 
-export const deleteComment = (id) => { //commentId
+export const deleteComment = (id) => {
   return {
     type: DELETE_COMMENT,
     id,
   };
 };
 
-//Thunks
 export const loadAllComments = () => async (dispatch) => {
-  const res = await csrfFetch("/api/comments"); //get comments
-  console.log(res, "RESPONSE");
-  if (res.ok) { // if response status code is less than 400
-    // dispatch the receive fruits POJO action
-    const comments = await res.json();
-    console.log(comments, "LOADED COMMENTS");
-    dispatch(loadComments(comments.comments)); //sent to reducer
-  }
+  const res = await csrfFetch("/api/comments");
+    if (res.ok) {
+      dispatch(loadComments(await res.json().comments));
+    }
 };
 
 export const loadSongComments = (song) => async (dispatch) => {
-    console.log(song, 'THE SONGGGGG') // ? ? ??
-  const res = await csrfFetch(`/api/songs/${song.id}/comments`); //get commment from songId
-  console.log(res, "SONG COMMENT RESPONSE");
-  if (res.ok) { // if response status code is less than 400
-    // dispatch the receive fruits POJO action
-    const songComments = await res.json();
-    console.log(songComments, "SONG COMMENTS");
-    dispatch(loadComments(songComments)); //sent to reducer
-  }
+  const res = await csrfFetch(`/api/songs/${song.id}/comments`);
+    if (res.ok) {
+      dispatch(loadComments(await res.json()));
+    }
 };
 
 export const updateComment = (payload) => async (dispatch) => {
-  const res = await csrfFetch(`/api/comments/${payload.id}`, { //get payload from comment
+  const res = await csrfFetch(`/api/comments/${payload.id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
 
-  if (res.ok) { // if response status code is less than 400
-    // dispatch the receive fruits POJO action
+  if (res.ok) {
     const comment = await res.json();
     dispatch(editComment(comment)); //sent to reducer
     return comment;
@@ -68,14 +57,13 @@ export const updateComment = (payload) => async (dispatch) => {
 };
 
 export const removeComment = (commentId) => async (dispatch) => {
-    console.log(commentId, 'Remove Song THUNK hits')
-    const res = await csrfFetch(`/api/comments/${commentId}`, { //get commentId from coment
+    const res = await csrfFetch(`/api/comments/${commentId}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
     });
-    if (res.ok) { // if response status code is less than 400
-      // dispatch the receive fruits POJO action
-      dispatch(deleteComment(commentId)); //sent to recducer
+
+    if (res.ok) {
+      dispatch(deleteComment(commentId));
     }
   };
 
@@ -87,7 +75,7 @@ const commentReducer = (state = initialState, action) => {
   switch (action.type) {
     case ADD_COMMENT:
       newState[action.payload.id] = action.payload;
-      console.log(newState, "hi new state");
+      console.log(newState, "new state");
       return newState;
     case LOAD_COMMENTS:
       action.comments.forEach((comment) => {

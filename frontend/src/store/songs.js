@@ -1,13 +1,13 @@
 import { csrfFetch } from "./csrf";
 
-//Variables
+
 const LOAD_SONGS = "load/LOAD_SONGS";
 const ADD_SONG = "add/ADD_SONG";
 const DELETE_SONG = "delete/DELETE_SONG";
 const EDIT_SONG = "edit/EDIT_SONG";
 const ADD_COMMENT = "add/ADD_COMMENT";
 
-//Actions
+
 const addComment = (payload) => {
   return {
     type: ADD_COMMENT,
@@ -36,33 +36,15 @@ const editSong = (song) => {
   };
 };
 
-export const deleteSong = (id) => { //the songId from the removeSong thunk is passed in here
+export const deleteSong = (id) => {
   return {
     type: DELETE_SONG,
     id
   }
 }
-//******* THUNK *******
-// export const createComment =  (payload) => async (dispatch) => {
-//   console.log(payload, 'HERE IS THE SUBMITTED COMMENT!!!')
-//   const {username, body, userId, songId} = payload
-//   const res = await csrfFetch(`/api/songs/${songId}/comments`, {
-//       method: "POST",
-//       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify({body})
-//     });
 
-//     if (res.ok) {
-//       const comment = await res.json();
-//       comment.User = {id: userId, username}
-//       console.log(comment, 'RETURNED COMMENT')
-//       dispatch(addComment(comment));
-//       return comment;
-//     }
-//   };
 
 export const createComment =  (payload) => async (dispatch) => {
-  console.log(payload, 'HERE IS THE SUBMITTED COMMENT!!!')
   const res = await csrfFetch(`/api/songs/${payload.songId}/comments`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -71,7 +53,6 @@ export const createComment =  (payload) => async (dispatch) => {
 
     if (res.ok) {
       const comment = await res.json();
-      console.log(comment, 'THIS IS THE RETURNED COMMENT')
       dispatch(addComment(comment));
       return comment;
     }
@@ -81,20 +62,16 @@ export const createComment =  (payload) => async (dispatch) => {
 
 export const getSongs = () => async (dispatch) => {
   const res = await fetch("/api/songs");
-  console.log(res, "RESPONSE");
   if (res.ok) {
     const songs = await res.json();
-    console.log(songs, "SONGSSSS");
     dispatch(loadSongs(songs.allSongs));
   }
 };
 
 export const getUserSongs = () => async (dispatch) => {
   const res = await fetch("/api/songs/current");
-  console.log(res, "RESPONSE");
   if (res.ok) {
     const songs = await res.json();
-    console.log(songs, "User SONGSSSS");
     dispatch(loadSongs(songs));
   }
 };
@@ -132,7 +109,6 @@ export const updateSong = (payload) => async (dispatch) => {
 };
 
 export const removeSong = (songId) => async (dispatch) => {
-  console.log(songId, 'Remove Song THUNK hits')
   const res = await csrfFetch(`/api/songs/${songId}`, {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
@@ -150,7 +126,7 @@ const songReducer = (state = initialState, action) => {
       action.songs.forEach((song) => {
         newState[song.id] = song;
       });
-      console.log(newState, "NEWSTATE");
+      console.log(newState, "new state");
       return newState;
     case ADD_SONG:
       newState[action.payload.id] = action.payload;
@@ -161,10 +137,6 @@ const songReducer = (state = initialState, action) => {
     case EDIT_SONG:
       newState[action.song.id] = action.song;
       return newState;
-  //  case ADD_COMMENT:
-  //     newState[action.payload.id] = action.payload
-  //     console.log(newState, 'new state')
-  //     return newState
     default:
       return state;
   }

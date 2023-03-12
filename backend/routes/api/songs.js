@@ -1,239 +1,290 @@
 const express = require("express");
-const { User, Song, Album, Playlist, Comment } = require('../../db/models')
+const { setTokenCookie, requireAuth } = require("../../utils/auth");
 const router = express.Router();
-const { requireAuth, restoreUser } = require('../../utils/auth');
-const { check } = require('express-validator');
-const { handleValidationErrors } = require('../../utils/validation');
-
-
-
-const validateGetAllSongs = [
-    check('size')
-        .custom(async (value, { req }) => {
-            if (req.query) {
-                const { size } = req.query
-                if (size < 0) {
-                    return await Promise.reject("Size must be greater than or equal to 0")
-                }
-            }
-        }),
-    check('page')
-        .custom(async (value, { req }) => {
-            if (req.query) {
-                const { page } = req.query
-                if (page < 0) {
-                    return await Promise.reject("Page must be greater than or equal to 0")
-                }
-            }
-        }),
-    check('createdAt')
-        .isDate({ dateOnly: false })
-        .optional({ nullable: true })
-        .withMessage("createdAt is invalid"),
-    handleValidationErrors
-];
+const { check } = require("express-validator");
+const { handleValidationErrors } = require("../../utils/validation");
+const {
+  User,
+  Song,
+  Album,
+  Playlist,
+  Comment,
+  PlaylistSong,
+} = require("../../db/models");
+const { Op } = require("sequelize");
 
 const validateSong = [
-    check('title')
-        .exists({ checkFalsey: true })
-        .withMessage('Song title is required.'),
-    check('url')
-        .exists({ checkFalsy: true })
-        .withMessage('Audio is required'),
-    handleValidationErrors
+  check("title")
+    .exists({ checkFalsy: true })
+    .withMessage("Please provide a valid song title."),
+  check("url")
+    .exists({ checkFalsy: true })
+    .withMessage("Please provide song audio"),
+  handleValidationErrors,
 ];
 
 const validateComment = [
-    check('body')
-        .exists({ checkFalsey: true })
-        .notEmpty()
-        .withMessage('Comment body text is required'),
-    handleValidationErrors
+  check("body")
+    .exists({ checkFalsy: true })
+    .withMessage("Please provide a valid comment."),
+  handleValidationErrors,
 ];
 
+//GET SONG
+router.get("/", async (req, res, next) => {
+  let { page, size } = req.query;
+  let pagination = {};
+  if (!page || !size) {
+    let allSongs = await Song.findAll();
+    return res.json({ allSongs });
+  }
+  if (req.query) {
+    page = parseInt(page);
+    size = parseInt(size);
+    if (
+      Number.isInteger(page) &&
+      Number.isInteger(size) &&
+      page > 0 &&
+      page <= 10 &&
+      size > 0 &&
+      size <= 20
+    ) {
+      (pagination.limit = size), (pagination.offset = size * (page - 1));
+    } else if (!(page === 0 && size === 0)) {
+      const err = new Error();
+      err.status = 404;
+      err.title = "Page or Size not integer";
+      err.message = "Page and Size must be a number greater than or equal to 0";
+      err.errors = [
+        "Page and Size must be a number greater than or equal to 0",
+      ];
 
-
-//get all songs
-router.get('/', validateGetAllSongs, async (req, res) => {
-    const songObj = req.query;
-    let { page, size } = songObj;
-    page = Number.parseInt(page)
-    size = Number.parseInt(size)
-
-    if (Number.isNaN(page)) page = 1;
-    if (Number.isNaN(size)) size = 10;
-    const pagination = {};
-    if (page === 0) {
-        limit = null;
-        offset = null;
-    } else {
-        pagination.limit = size;
-        pagination.offset = size * (page - 1)
+      return next(err);
     }
-    const songs = await Song.findAll({
-        ...pagination
-    });
-
-    res.json({
-        songs,
-        page,
-        size
-    });
-});
-
-
-//create a song based on albumId
-router.post('/', requireAuth, validateSong, async (req, res, next) => {
-    const { title, description, url, previewImage, albumId } = req.body;
-    const userId = req.user.id;
-
-    const album = await Album.findOne({
-        where: {
-            id: albumId
-        }
-    });
-
-    if (album) {
-        const newSong = await Song.create({
-            title,
-            description,
-            url,
-            previewImage,
-            albumId,
-            userId
-        })
-        return res.json(newSong)
-
-    } else {
-        const e = new Error("Album couldn't be found");
-        e.status = 404;
-        return next(e)
-    }
-
-});
-
-
-//get all songs from current user
-router.get("/current", requireAuth, async (req, res) => {
-    let userId = req.user.id;
-    const songs = await Song.findAll({
-        where: {
-            userId: userId,
-        },
-    });
-    res.json(songs);
-});
-
-//get detail of a song by id
-router.get("/:songId", async (req, res, next) => {
-    const { songId } = req.params;
-    const song = await Song.findByPk(songId, {
-        include: [
-            {
-                model: User,
-                as: 'Artist',
-            },
-            {
-                model: Album,
-                as: 'Album'
-            },
-        ],
-    });
-    if (!song) {
-        const err = new Error();
-        err.message = "Song couldn't be found";
-        err.status = 404;
-        return next(err);
-    }
-    return res.json(song);
-});
-
-//edit song
-router.put('/:songId', requireAuth, validateSong, async (req, res, next) => {
-    //query for song, => series of if statements
-        const userId = req.user.id;
-        const song = await Song.findByPk(req.params.songId);
-        const { title, description, url, imageUrl, albumId } = req.body;
-
-        if (!song) {
-            const err = new Error("Song could't be found");
-                err.status = 404;
-                return next(err);
-        }
-
-        if (userId !== song.userId) {
-            const err = new Error("You don't own this song");
-                err.status = 403;
-                return next(err);
-        }
-
-        song.title = title;
-        song.description = description;
-        song.url = url;
-        song.previewImage = imageUrl;
-
-        await song.save(); // changes made in lines
-        res.json(song); // return
-    })
-
-//create comment from a song's id
-router.post('/:songId/comments', validateComment, async (req, res, next) => {
-    const userId = req.user.id;
-    const { songId } = req.params;
-    const { body } = req.body;
-
-    let song = await Song.findByPk(songId);
-    if (!song) {
-        const err = new Error("Song couldn't be found");
-        err.status = 404;
-        return next(err);
-    } else {
-        const newComment = await Comment.create({
-            userId,
-            songId,
-            body,
-        })
-        return res.json(newComment)
-    }
-});
-
-//get comments by songId
-router.get('/:songId/comments', async (req, res, next) => {
-    const {songId} = req.params
-    const comment = await Comment.scope([{method: ['songScopeComment', songId]}]).findAll(
-       { include: [ { model: User }]
-    });
-
-    if (comment.length > 0) {
-      return res.json({"Comments": comment})
-    } else {
-        const e = new Error('No song found');
-        e.status = 404;
-        return next(e);
-    }
+  }
+  let allSongs = await Song.findAll({
+    ...pagination,
   });
 
-router.delete('/:songId', requireAuth, async (req, res, next) => {
-    //check req.user.id so that user is the correct user of song compare req.user.id w/ songs user.id
-    // query for song and if you can find, .destroy it (await *quweryname*.destroy())
-        const userId = req.user.id;
-        const song = await Song.findByPk(req.params.songId);
+  return res.json({ allSongs, page, size });
+});
 
-        if (song) {
-            if (userId !== song.userId) {
-                const err = new Error("You don't own this song");
-                    err.status = 403;
-                    return next(err);
-            }
-            await song.destroy();
-            res.json({
-                Message: "Successfully deleted"
-            });
-        }
-        const e = new Error('No song found');
-        e.status = 404;
-        return next(e);
-    })
+//GET SONG BY ID
+router.get("/:songId(\\d+)", async (req, res, next) => {
+  const song = await Song.findOne({
+    where: {
+      id: req.params.songId,
+    },
+    include: [
+      {
+        model: User,
+        as: "Artist",
+        attributes: ["id", "previewImage", "username"],
+      },
+      { model: Album, attributes: ["id", "previewImage", "title"] },
+    ],
+  });
 
+  if (!song) {
+    //title, status, errors(array), message
+    const err = new Error();
+    err.status = 404;
+    err.title = "songId does not exist";
+    err.message = "Song could not be found";
+    err.errors = ["Song not found"];
+
+    return next(err);
+  }
+  return res.json(song);
+});
+
+//GET ALL SONGS BY CURRENT USER
+
+router.get("/current", requireAuth, async (req, res, next) => {
+  const userId = req.user.id;
+  const allUserSongs = await Song.findAll({ where: { userId: userId } });
+
+  return res.json(allUserSongs);
+});
+
+//EDIT A SONG
+router.put("/:songId", validateSong, requireAuth, async (req, res, next) => {
+  const { title, description, url, previewImage } = req.body;
+  const song = await Song.findByPk(req.params.songId);
+  0;
+  if (!song) {
+    //title, status, errors(array), message
+    const err = new Error();
+    err.status = 404;
+    err.title = "songId does not exist";
+    err.message = "Song could not be found";
+    err.errors = ["Song not found"];
+
+    return next(err);
+  }
+
+  song.set({
+    title: title,
+    description: description,
+    url: url,
+    previewImage: previewImage,
+  });
+  await song.save();
+
+  const editedSong = await Song.findByPk(req.params.songId);
+  res.json(editedSong);
+});
+
+//CREATE A SONG FOR AN ALBUM
+router.post("/", requireAuth, validateSong, async (req, res, next) => {
+  const { title, description, url, previewImage, albumId } = req.body;
+  const userId = req.user.id;
+  if (albumId) {
+    const album = await Album.findByPk(albumId);
+
+    if (!album) {
+      //title, status, errors(array), message
+      const err = new Error();
+      err.status = 404;
+      err.title = "albumId does not exist";
+      err.message = "Album not found";
+      err.errors = ["Album not found"];
+
+      return next(err);
+    }
+  }
+  const newSong = await Song.create({
+    title,
+    description,
+    url,
+    previewImage,
+    albumId,
+    userId,
+  });
+  res.status(201);
+  res.json(newSong);
+});
+
+//CREATE A COMMENT
+router.post("/:songId/comments", requireAuth, validateComment, async (req, res, next) => {
+  const { body } = req.body;
+  const songId = req.params.songId;
+  const userId = req.user.id;
+  const username = req.user.username
+  console.log(username, 'BACKEND USERNAME')
+  const song = await Song.findByPk(req.params.songId);
+
+  if (!song || songId === null) {
+    const err = new Error();
+    err.status = 404;
+    err.title = "songId does not exist";
+    err.message = "Song could not be found";
+    err.errors = ["Song not found"];
+
+    return next(err);
+  }
+
+  const newComment = await song.createComment({ body: body, userId, username });
+
+  res.json(newComment);
+});
+
+//Get A COMMENT
+router.get("/:songId/comments", async (req, res, next) => {
+  const songId = req.params.songId;
+
+  const song = await Song.findByPk(songId);
+
+  if (!song || songId === null) {
+    const err = new Error();
+    err.status = 404;
+    err.title = "songId does not exist";
+    err.message = "Song could not be found";
+    err.errors = ["Song not found"];
+
+    return next(err);
+  }
+
+  const songComments = await Comment.findAll({
+    where: { songId: songId },
+    // include: [
+    //   {
+    //     model: User,
+    //     attributes: ["id", "username"],
+    //   },
+    // ],
+  });
+  // console.log("song");
+  res.json(songComments);
+});
+
+//DELETE A SONG
+
+router.delete("/:songId", requireAuth, async (req, res, next) => {
+  const songId = req.params.songId;
+  const userId = req.params.id;
+  const { body } = req.body;
+
+  if (songId) {
+    const song = await Song.findByPk(songId, {
+      where: { userId: userId },
+    });
+
+    if (!song) {
+      const err = new Error();
+      err.status = 404;
+      err.title = "songId does not exist";
+      err.message = "song could not be found";
+      err.errors = ["song not found"];
+
+      return next(err);
+    }
+
+    await song.destroy();
+  }
+
+  res.json({
+    message: "Successfully deleted",
+    statusCode: 200,
+  });
+});
+//ALT ATTEMPT
+// const album = await Album.findByPk(albumId)
+// if(!album)
+// throw err
+
+// if (album) {
+//     const newSong = await Album.createSong( {
+//         title,
+//         description,
+//         url,
+//         previewImage,
+//         albumId
+//     })
+//     res.status(201)
+//     res.json(newSong)
+//     } )
+
+// router.post('/', requireAuth, async (req, res) => {
+// const { title, description, url, previewImage, albumId } = req.body
+
+// if(albumId !== (Album.findOne( {where: {id: albumId}} )) ){
+//     res.status(404);
+//     res.send({ message: 'Album Not Found' })
+// }
+
+// const newSong = await Song.create( {
+//     title,
+//     description,
+//     url,
+//     previewImage,
+//     albumId
+// })
+// res.status(201)
+// res.json(newSong)
+// } )
+
+//GET ALL SONGS BY CURRENT USER
+// router.get('/current', requireAuth)
 
 module.exports = router;

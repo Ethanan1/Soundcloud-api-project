@@ -1,65 +1,126 @@
 const express = require("express");
-const { User, Song, Album, Playlist, Comment } = require('../../db/models')
+const { setTokenCookie, requireAuth } = require("../../utils/auth");
 const router = express.Router();
-const { requireAuth, restoreSession, restoreUser } = require('../../utils/auth');
-const { check } = require('express-validator');
-const { handleValidationErrors } = require('../../utils/validation');
-const { Model } = require("sequelize");
-const app = require ('../../app')
+const { check } = require("express-validator");
+const { handleValidationErrors } = require("../../utils/validation");
+const {
+  User,
+  Song,
+  Album,
+  Playlist,
+  Comment,
+  PlaylistSong,
+} = require("../../db/models");
+const { Op } = require("sequelize");
 
-const validateComment = [
-    check('body')
-      .exists({ checkFalsy: true })
-      .withMessage('Body is required'),
-    handleValidationErrors
-  ];
 
-// edit a comment
-router.put('/:commentId', requireAuth, async (req, res, next) => {
-    const { commentId } = req.params;
-    const { body } = req.body;
-    const editComment = await Comment.findByPk(commentId);
+//CREATE A COMMENT
+router.post("/", requireAuth, async (req, res, next) => {
+  const { body } = req.body;
+  const songId = req.params.songId;
+  const userId = req.user.id;
+  const song = await Comment.findByPk(req.params.songId);
 
-    if (editComment) {
-        await editComment.update({ ...body });
-        return res.json(editComment)
-    } else {
-        const e = new Error('Comment not found');
-        e.status = 404;
-        return next(e);
-    }
+  if (!song || songId === null) {
+    const err = new Error();
+    err.status = 404;
+    err.title = "songId does not exist";
+    err.message = "Song could not be found";
+    err.errors = ["Song not found"];
+
+    return next(err);
+  }
+
+  const newComment = await song.createComment({ body: body, userId });
+
+  res.json(newComment);
 });
 
-//delete a comment
-router.delete('/:userId', requireAuth, async (req, res, next) => {
+//GET ALL COMMENTs
 
-    const userId = req.user.id;
-    const comment = await Comment.findByPk(req.params.userId);
+router.get("/", async (req, res, next) => {
+let comments = await Comment.findAll({
+});
 
-    if (comment) {
-        if (userId !== comment.userId) {
-            const err = new Error("You don't own this comment");
-                err.status = 403;
-                return next(err);
-        }
-        await comment.destroy();
-    } else {
-        const e = new Error("No comment")
-        e.status = 404;
-        return next(e);
-    }
-    res.json({
-        Message: "Successfully deleted"
+return res.json({ comments });
+});
+
+
+//GET A COMMENT
+// router.get("/:commentId", async (req, res, next) => {
+//   const comment = await Comment.findOne({
+//     where: {
+//       id: req.params.commentId
+//     }
+//   })
+// })
+
+//EDIT A COMMENT
+router.put("/:commentId", requireAuth, async (req, res, next) => {
+  const commentId = req.params.commentId;
+  const userId = req.params.id;
+  const { body } = req.body;
+
+  if (commentId) {
+    const comment = await Comment.findByPk(commentId, {
+      where: { userId: userId },
     });
-})
+
+    if (!comment || commentId === null) {
+      const err = new Error();
+      err.status = 404;
+      err.title = "commentId does not exist";
+      err.message = "comment could not be found";
+      err.errors = ["comment not found"];
+
+      return next(err);
+    }
+
+    comment.set({
+      userId,
+      body: body
+    });
+
+    await comment.save();
+  }
+
+  const editedComment = await Comment.findByPk(commentId);
+
+  res.json(editedComment);
+});
 
 
+//DELETE A COMMENT
+router.delete("/:commentId", requireAuth, async (req, res, next) => {
+  const commentId = req.params.commentId;
+  const userId = req.params.id;
+  const { body } = req.body;
 
+  if (commentId) {
+    const comment = await Comment.findByPk(commentId, {
+      where: { userId: userId },
+    });
 
+    if (!comment) {
+      const err = new Error();
+      err.status = 404;
+      err.title = "commentId does not exist";
+      err.message = "comment could not be found";
+      err.errors = ["comment not found"];
 
+      return next(err);
+    }
 
+    await Comment.destroy({
+      where: { id: commentId }, // specific records to delete
+    });
+  }
 
-
+  res.json({
+    message: "Successfully deleted",
+    statusCode: 200,
+  });
+});
 
 
 

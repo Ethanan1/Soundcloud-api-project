@@ -1,112 +1,164 @@
 const express = require("express");
-const { User, Song, Album, Playlist, Comment } = require('../../db/models')
+const { setTokenCookie, requireAuth } = require("../../utils/auth");
 const router = express.Router();
-const { requireAuth, restoreUser } = require('../../utils/auth');
-const { check } = require('express-validator');
-const { handleValidationErrors } = require('../../utils/validation');
-const { Model } = require("sequelize");
-const app = require('../../app');
+const { check } = require("express-validator");
+const { handleValidationErrors } = require("../../utils/validation");
+const { User, Song, Album, Playlist, Comment, PlaylistSong } = require('../../db/models');
+const { Op } = require("sequelize");
 
-const validateAlbum = [
-    check('title')
-        .exists({ checkFalsey: true })
-        .withMessage('Album title is required.'),
-    check('description')
-        .exists({ checkFalsey: true })
-        .withMessage('Album description is required.'),
-    check('imageUrl')
-        .exists({ checkFalsey: true })
-        .withMessage('Album imageUrl is required.'),
-    handleValidationErrors
-];
 
-//return all albums
+
 router.get('/', async (req, res) => {
-    const albums = await Album.findAll()
-    res.json({ Albums: albums })
-})
-
-// get all albums of current user
-router.get('/current', requireAuth, async (req, res) => {
-    const user = req.user.id;
-    const currAlbums = await Album.findAll({
-        where: {
-            userId: user},
-    });
-    return res.json(currAlbums)
+    const allAlbums = await Album.findAll()
+   return res.json(allAlbums)
 });
 
-//get details of an album from id
+//GET ALBUMS oF CURRENT USER
+router.get('/current', requireAuth, async (req, res, next) => {
+
+    const userId = req.user.id
+        const allUserAlbums = await Album.findAll( {where: {userId: userId}})
+
+       return res.json(allUserAlbums)
+    })
+//Get ALBUM DETAILS BASED ON ALBUM ID
 router.get('/:albumId', async (req, res, next) => {
-    const { albumId } = req.params;
-    const album = await Album.findByPk(albumId, {
-        include: [{
+
+    const albumId = req.params.albumId
+
+    const album = await Album.findByPk( albumId, {
+        include: [ {
             model: User,
-            as: 'Artist'
-          }, {
-            model: Song,
-            as: 'Songs'
-          }]
-    });
+            as: 'Artist',
+            attributes:['id', 'previewImage', 'username']
+        },
+        {model: Song,
+            attributes:['id', 'userId', 'albumId', 'title', 'description', 'url', 'createdAt', 'updatedAt', 'previewImage']}]
+        })
 
-    if (!album) {
-        const e = new Error("Album couldn't be found");
-        e.status = 404;
-        return next(e)
+
+    if(!album) {
+
+        const err = new Error();
+        err.status = 404;
+        err.title = "album does not exist";
+        err.message = "Album could not be found";
+        err.errors = ["Album not found"];
+
+        return next(err);
+
     }
-    return res.json(album)
+   return res.json(album)
 });
 
-//create an album
-router.post('/', requireAuth, validateAlbum, async (req, res, next) => {
-    const { title, description, imageUrl } = req.body;
-    const { user } = req;
 
-    const album = await Album.create({
-        userId: user.id,
-        title,
-        description,
-        previewImage: imageUrl,
-    });
-    return res.json(album)
+
+//CREATE AN ALBUM
+router.post('/', requireAuth, async (req, res) => {
+  const { title, description, previewImage } = req.body;
+  const userId = req.user.id
+  const newAlbum = await Album.create(
+    {
+      title: title,
+      description: description,
+      previewImage: previewImage,
+      userId
+    },
+  );
+
+  if (newAlbum) {
+    res.status(200);
+    return res.json(newAlbum);
+  }
 });
 
-//edit album
-router.put('/:albumId', requireAuth, validateAlbum, async (req, res, next) => {
-    const { albumId } = req.params;
-    const album = await Album.findByPk(albumId);
-    if (album) {
-        await album.update({...req.body});
-        return res.json(album)
-    } else {
-        const e = new Error("Album couldn't be found");
-        e.status = 404;
-        return next(e)
-    }
+//CREATE A SONG FOR AN ALBUM
+router.post('/:albumId/songs', requireAuth, async (req, res, next) => {
+        const { title, description, url, previewImage } = req.body
+
+        const albumId = req.params.albumId
+        if (albumId) {
+            const album = await Album.findByPk(albumId)
+
+             if (!album) {
+               //title, status, errors(array), message
+               const err = new Error()
+               err.status = 404
+               err.title = 'albumId does not exist'
+               err.message = 'Album not found'
+               err.errors = ['Album not found']
+
+               return next(err)
+
+             }
+            }
+            const newSong = await Song.create( {
+                title,
+                description,
+                url,
+                previewImage,
+                albumId
+            })
+            res.status(201)
+            res.json(newSong)
+            })
+
+
+//EDIT AN ALBUM
+router.put('/:albumId', async (req, res, next) => {
+const { title, description, previewImage } = req.body
+const album = await Album.findByPk(req.params.albumId)
+if (!album) {
+    //title, status, errors(array), message
+    const err = new Error()
+    err.status = 404
+    err.title = 'albumId does not exist'
+    err.message = 'album could not be found'
+    err.errors = ['album not found']
+
+    return next(err)
+
+  }
+
+album.set({
+    title: title,
+    description: description,
+    previewImage: previewImage
+});
+
+await album.save();
+
+const editedAlbum = await Album.findByPk(req.params.albumId)
+res.json(editedAlbum)
 })
 
-//delete an album
-router.delete('/:albumId', requireAuth, async (req, res, next) => {
-    const userId = req.user.id;
-    const album = await Album.findByPk(req.params.albumId);
+//DELETE AN ALBUM
+router.delete("/:albumId", requireAuth, async (req, res, next) => {
+    const albumId = req.params.albumId;
+    const userId = req.params.id;
+    const { body } = req.body;
 
-    if (album) {
-        if (userId !== album.userId) {
-            const err = new Error("You don't own this album");
-                err.status = 403;
-                return next(err);
-        }
-        await album.destroy();
-        res.json({
-            Message: "Successfully deleted"
-        });
-    } else {
-        const e = new Error('No album found')
-        e.status = 404;
-        return next(e);
+    if (albumId) {
+      const album = await Album.findByPk(albumId, {
+        where: { userId: userId },
+      });
+
+      if (!album) {
+        const err = new Error();
+        err.status = 404;
+        err.title = "albumId does not exist";
+        err.message = "album could not be found";
+        err.errors = ["album not found"];
+
+        return next(err);
+      }
+
+      await album.destroy();
     }
 
-})
-
-
+    res.json({
+      message: "Successfully deleted",
+      statusCode: 200,
+    });
+  });
 module.exports = router;

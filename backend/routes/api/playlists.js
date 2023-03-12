@@ -1,150 +1,206 @@
 const express = require("express");
-const { User, Song, Album, PlaylistSong, Comment, Playlist } = require('../../db/models')
+const { setTokenCookie, requireAuth } = require("../../utils/auth");
+const {
+  User,
+  Song,
+  Album,
+  Playlist,
+  Comment,
+  PlaylistSong,
+} = require("../../db/models");
 const router = express.Router();
-const { requireAuth, restoreSession, restoreUser } = require('../../utils/auth');
-const { Model } = require("sequelize");
-const playlists = require("../../db/models/playlists");
-const { check } = require('express-validator');
-const { handleValidationErrors } = require('../../utils/validation');
-const user = require("../../db/models/user");
+const { check } = require("express-validator");
+const { handleValidationErrors } = require("../../utils/validation");
+const { Op } = require("sequelize");
+
 
 const validatePlaylist = [
-    check('name')
-        .exists({ checkFalsey: true })
-        .withMessage('Playlist name is required'),
-    handleValidationErrors
-];
+    check("name")
+      .exists({ checkFalsy: true })
+      .withMessage("Please provide a valid playlist name."),
+    handleValidationErrors,
+  ];
 
-//create a playlist
-router.post('/', requireAuth, validatePlaylist, async (req, res) => {
-    const { name, imageUrl } = req.body;
-    const { user } = req;
-    const createPlaylist = await Playlist.create({
-        userId: user.id,
-        name: name,
-        previewImage: imageUrl,
-    });
-    return res.json(createPlaylist)
-});
 
-//get all playlist by current user
-router.get('/current', requireAuth, async (req, res) => {
-    const currPlaylist = await Playlist.findAll({
-        where: { userId: req.user.id },
-    });
 
-    if (currPlaylist) {
-        return res.json({ 'Playlists': currPlaylist })
-    }
+//GET ALL PLAYLISTS BY CURRENT USER
+router.get("/current", requireAuth, async (req, res, next) => {
+    const userId = req.user.id;
+    const allUserPlaylists = await Playlist.findAll({ where: { userId: userId } });
 
-    if (!currPlaylist) {
-        const e = new Error('Playlist not found');
-        e.status = 404;
-        return next(e);
-    }
-
-    if (currPlaylist.userId !== user.id) {
-        const e = new Error('You do not have permission');
-        e.status = 403;
-        return next(e);
-    }
-});
-
-//add a song to playlist based on id
-router.post("/:playlistId/songs", requireAuth, async (req, res, next) => {
-    const { playlistId } = req.params;
-    const { songId } = req.body;
-    const playlist = await Playlist.findByPk(playlistId);
-    if (!playlist) {
-      const e = new Error('Playlist not found');
-      e.status = 404;
-      return next(e);
-    }
-    const song = await Song.findByPk(songId);
-    if (!song) {
-        const e = new Error('Song not found');
-        e.status = 404;
-        return next(e);
-    }
-    return res.json(await PlaylistSong.create({ playlistId, songId }));
+    return res.json(allUserPlaylists);
   });
 
-//get details of a playlist by id
-router.get('/:playlistId', async (req, res, next) => {
-    const { playlistId } = req.params;
-    const playlist = await PlaylistSong.findOne({
-        where: {
-            playlistId
-        }
-    });
 
-    if (playlist) {
-        const playlistSongs = await Playlist.findOne({
-            where: {
-                id: playlist.playlistId
-            },
-            include: {
-                model: Song,
-                through: { attributes: [] }
-            }
-        });
-        return res.json(playlistSongs)
-    } else {
-        if (!playlist) {
-            const e = new Error('Playlist not found');
-            e.status = 404;
-            return next(e);
-        }
-    }
-});
+//GET DETAILS oF PLAYLIST BY ID
+router.get("/:playlistId", async (req, res, next) => {
+  const playlistId = req.params.playlistId;
 
-//edit a playlist
-router.put('/:playlistId', requireAuth, validatePlaylist, async (req, res, next) => {
-    const { playlistId } = req.params;
-    const { body } = req.body;
+  if (playlistId) {
     const playlist = await Playlist.findByPk(playlistId);
-    if (playlist) {
-        await playlist.update({ ...body });
-        return res.json(playlist)
-    } else {
-        const e = new Error('Playlist not found');
-        e.status = 404;
-        return next(e);
+
+    if (!playlist) {
+      const err = new Error();
+      err.status = 404;
+      err.title = "Playlist No Name";
+      err.message = "Playlist needs a name";
+      err.errors = ["Playlist needs a name"];
+
+      return next(err);
     }
+  }
+
+  const fullPlaylist = await Playlist.findOne({
+    where: { id: playlistId },
+
+    include: [
+      {
+        model: Song,
+        attributes: [
+          "id",
+          "userId",
+          "albumId",
+          "title",
+          "description",
+          "previewImage",
+        ],
+        through: { attributes: [] },
+      },
+    ],
+  });
+
+  res.json(fullPlaylist);
+});
+
+//CREATE A PLAYLIST
+router.post("/", requireAuth, async (req, res, next) => {
+  const { name, previewImage } = req.body;
+  const userId = req.user.id;
+
+  if (!name) {
+    const err = new Error();
+    err.status = 400;
+    err.title = "Playlist No Name";
+    err.message = "Playlist needs a name";
+    err.errors = ["Playlist needs a name"];
+
+    return next(err);
+  }
+
+  const newPlaylist = await Playlist.create({
+    userId,
+    name: name,
+    previewImage: previewImage,
+  });
+
+  res.status(201);
+  res.json(newPlaylist);
+});
+
+//ADD A SONG TO A PLAYLIST
+router.post("/:playlistId/songs", requireAuth, async (req, res, next) => {
+  const { songId } = req.body;
+  const playlistId = req.params.playlistId;
+
+  if (playlistId) {
+    const playlist = await Playlist.findByPk(playlistId);
+
+    if (!playlist) {
+      const err = new Error();
+      err.status = 404;
+      err.title = "playlistId does not exist";
+      err.message = "playlist could not be found";
+      err.errors = ["playlist not found"];
+
+      return next(err);
+    }
+  }
+
+  if (songId) {
+    const song = await Song.findByPk(songId);
+
+    if (!song) {
+      const err = new Error();
+      err.status = 404;
+      err.title = "songId does not exist";
+      err.message = "Song could not be found";
+      err.errors = ["Song not found"];
+
+      return next(err);
+    }
+  }
+
+  const editedPlaylist = await PlaylistSong.create({
+    songId: songId,
+    playlistId: playlistId,
+  });
+
+  res.json(editedPlaylist);
 });
 
 
-router.delete('/:playlistId', requireAuth, restoreUser, async (req, res, next) => {
-    //check req.user.id so that user is the correct user of song compare req.user.id w/ songs user.id
-    // query for song and if you can find, .destroy it (await *quweryname*.destroy())
-        const userId = req.user.id;
-        const { playlistId } = req.params;
-        const playlist = await Playlist.findByPk(playlistId);
+//EDIT a PLAYLIST
+router.put('/:playlistId', requireAuth, validatePlaylist, async (req, res, next) => {
+const playlistId = req.params.playlistId
+const { name,  previewImage } = req.body
 
-        if (playlist) {
-            if (userId !== playlist.userId) {
-                const err = new Error("You don't own this song");
-                    err.status = 403;
-                    return next(err);
-            }
-            await playlist.destroy();
-            res.json({
-                Message: "Successfully deleted"
-            });
-        }
-        else {
-            const e = new Error('No album found')
-            e.status = 404;
-            return next(e);
-        }
-    })
+if(playlistId) {
+const playlist = await Playlist.findByPk(playlistId)
+
+    if(!playlist) {
+        const err = new Error();
+        err.status = 404;
+        err.title = "playlistId does not exist";
+        err.message = "playlist could not be found";
+        err.errors = ["playlist not found"];
+
+        return next(err);
+
+    }
+
+   await playlist.set({
+        name: name,
+        previewImage: previewImage
+      });
+
+      await playlist.save();
+}
+
+const editedPlaylist = await Playlist.findByPk(playlistId)
+
+res.json(editedPlaylist)
+
+})
 
 
+//DELETE A PLAYLIST
+router.delete("/:playlistId", requireAuth, async (req, res, next) => {
+    const playlistId = req.params.playlistId;
+    const userId = req.params.id;
 
 
+    if (playlistId) {
+      const playlist = await Playlist.findByPk(playlistId, {
+        where: { userId: userId },
+      });
 
+      if (!playlist) {
+        const err = new Error();
+        err.status = 404;
+        err.title = "playlistId does not exist";
+        err.message = "playlist could not be found";
+        err.errors = ["playlist not found"];
 
+        return next(err);
+      }
 
+      await playlist.destroy();
+    }
 
+    res.json({
+      message: "Successfully deleted",
+      statusCode: 200,
+    });
+  });
 
 module.exports = router;

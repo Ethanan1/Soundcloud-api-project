@@ -4,12 +4,13 @@ import { Link } from "react-router-dom";
 import { removeSong } from "../../store/songs";
 import { useHistory } from "react-router-dom";
 import EditDelete from "./EditDelete";
+import AudioPlayer from 'react-h5-audio-player';
+import 'react-h5-audio-player/lib/styles.css';
+import React, { useState, useSelector } from 'react';
 
 const SingleSong = ({ song, currentUser }) => {
   const dispatch = useDispatch();
   const history = useHistory();
-
-
 
   //comment Button
   const handleComment = (e) => {
@@ -19,6 +20,19 @@ const SingleSong = ({ song, currentUser }) => {
     history.push(`/songs/${song.id}`);
   };
 
+  const currSong = useSelector(state => state.currSong)
+
+  const Player = () => (
+    <AudioPlayer
+      autoPlay
+      src={currSong}
+      onPlay={e => console.log("onPlay")}
+      // other props here
+    />
+  );
+
+
+
   return  (
     <div className="song-box">
       <ul className="singleSong">
@@ -27,11 +41,11 @@ const SingleSong = ({ song, currentUser }) => {
         <Link to={`/songs/${song.id}`}>Song Name: {song.title}</Link>
         <li>Album: {song.albumId}</li>
         <li>Description: {song.description}</li>
-        {/* <a href={song.url}>
+        <a href={song.url}>
           <button>
-            Play <i className="fa-solid fa-play"></i>
+            Play <i className="fa-solid fa-play" onClick={Player}></i>
           </button>
-        </a> */}
+        </a>
       </ul>
 
       <div className="song-buttons">

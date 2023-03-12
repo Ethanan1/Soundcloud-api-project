@@ -53,7 +53,6 @@ const SongPage = () => {
 
       .catch(async (res) => {
         const data = await res.json();
-        console.log(data.errors, "DATAAA for ERRORSSS");
         if (data && data.errors) setErrors(data.errors);
       });
 
@@ -75,11 +74,12 @@ const SongPage = () => {
           <button>Back To Songs</button>
         </a>
 
-         {/* <a href={song.url}>
+         <a href={song.url}>
           <button>
             Play <i className="fa-solid fa-play"></i>
           </button>
-        </a> */}
+        </a>
+
         <form id='comment-form' onSubmit={handleSubmit}>
           <h2>Comment Form</h2>
           {errors.length > 0 &&
