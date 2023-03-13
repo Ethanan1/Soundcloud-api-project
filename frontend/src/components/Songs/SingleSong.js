@@ -23,6 +23,10 @@ const SingleSong = ({ song, currentUser }) => {
   const currSong = useSelector(state => state.currSong)
 
   const Player = () => (
+
+    const [currSong, setCurrSong] = useState(null);
+
+    
     <AudioPlayer
       autoPlay
       src={currSong}
