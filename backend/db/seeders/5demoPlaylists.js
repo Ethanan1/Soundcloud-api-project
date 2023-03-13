@@ -13,17 +13,17 @@ module.exports = {
       {
         name: 'Playlist 1',
         userId: 1,
-        previewImage: 'image url'
+        // previewImage: 'image url'
       },
       {
         name: 'Playlist 2',
         userId: 2,
-        previewImage: 'image url'
+        // previewImage: 'image url'
       },
       {
         name: 'Playlist 3',
         userId: 3,
-        previewImage: 'image url'
+        // previewImage: 'image url'
       },
     ])
 
