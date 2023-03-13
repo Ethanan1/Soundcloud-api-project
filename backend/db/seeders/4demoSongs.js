@@ -31,7 +31,7 @@ module.exports = {
         url: 'url',
         userId: 2,
         albumId: 2,
-        previewImage: 'image'
+        previewImage: 'https://upload.wikimedia.org/wikipedia/en/1/1f/Chris_Brown_-_Indigo.png'
       },
       {
         title: 'Red',
@@ -39,21 +39,21 @@ module.exports = {
         url: 'url',
         userId: 2,
         albumId: 2,
-        previewImage: 'image'
+        previewImage: 'https://upload.wikimedia.org/wikipedia/en/1/1f/Chris_Brown_-_Indigo.png'
       },
       {
         title: 'Good News',
         description: 'good news description',
         userId: 3,
         albumId: 3,
-        previewImage: 'image'
+        previewImage: 'https://wallpapercave.com/wp/wp7634462.jpg'
       },
       {
         title: 'More Time',
         description: 'More Time description',
         userId: 3,
         albumId: 3,
-        previewImage: 'image'
+        previewImage: 'https://wallpapercave.com/wp/wp7634462.jpg'
       },
     ]);
   },
