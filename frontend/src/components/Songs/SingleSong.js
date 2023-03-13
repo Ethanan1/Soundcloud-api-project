@@ -20,20 +20,20 @@ const SingleSong = ({ song, currentUser }) => {
     history.push(`/songs/${song.id}`);
   };
 
-  const currSong = useSelector(state => state.currSong)
+  // const currSong = useSelector(state => state.currSong)
 
-  const Player = () => (
+  // const Player = () => (
 
-    const [currSong, setCurrSong] = useState(null);
+  //   const [currSong, setCurrSong] = useState(null);
 
-    
-    <AudioPlayer
-      autoPlay
-      src={currSong}
-      onPlay={e => console.log("onPlay")}
-      // other props here
-    />
-  );
+
+  //   <AudioPlayer
+  //     autoPlay
+  //     src={currSong}
+  //     onPlay={e => console.log("onPlay")}
+
+  //   />
+  // );
 
 
 //test
@@ -47,7 +47,7 @@ const SingleSong = ({ song, currentUser }) => {
         <li>Description: {song.description}</li>
         <a href={song.url}>
           <button>
-            Play <i className="fa-solid fa-play" onClick={Player}></i>
+            Play <i className="fa-solid fa-play"></i> 
           </button>
         </a>
       </ul>

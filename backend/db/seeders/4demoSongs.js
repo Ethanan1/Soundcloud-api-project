@@ -15,7 +15,7 @@ module.exports = {
         url: 'url',
         userId: 1,
         albumId: 1,
-        previewImage: 'image'
+        previewImage: 'https://i1.sndcdn.com/artworks-vQtytb3d8q8e-0-t500x500.jpg'
       },
       {
         title: 'Spin Bout U',
