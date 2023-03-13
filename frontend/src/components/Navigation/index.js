@@ -57,12 +57,6 @@ function Navigation({ isLoaded, setIsLoaded }) {
                 Home
               </NavLink>
             </li>
-            {/* <li className="navList">
-              {" "}
-              <NavLink activeClassName="active" to="/comments">
-                Feed
-              </NavLink>
-            </li> */}
             <li className="navList">
               <NavLink activeClassName="active" exact to="/songs">
                 Songs

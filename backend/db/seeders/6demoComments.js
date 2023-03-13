@@ -11,20 +11,20 @@ module.exports = {
     options.tableName = 'Comments'
     await queryInterface.bulkInsert(options, [
       {
-        songId: 4,
+        songId: 3,
         userId: 1,
-        username: 'Fakeuser1',
+        username: 'Demo-lition',
         body: 'great song!'
       },
       {
-        songId: 6,
-        userId: 2,
-        username: 'Fakeuser2',
+        songId: 2,
+        userId: 1,
+        username: 'Demo-lition',
         body: 'This song is okay'
       },
       {
         songId: 1,
-        userId: 3,
+        userId: 1,
         username: 'Demo-lition',
         body: 'Love the beat'
       },

@@ -20,12 +20,11 @@ const SingleComment = ({ comment }) => {
 
   };
 
-console.log(currentUser.id === comment.userId)
 
 
-  return currentUser.id === comment.userId ?
-  <button onClick={handleDelete}>Delete</button>
-: null
+  // return currentUser.id === comment.userId ?
+  return (<>{currentUser.id},{comment.userId}<button onClick={handleDelete}>Delete</button></>)
+// : null
 };
 
 export default SingleComment;

@@ -9,7 +9,7 @@ import AllComments from "../Comments/AllComments";
 const SongsList = () => {
   const dispatch = useDispatch();
 const history = useHistory()
-  //   The Array of all the songs
+  //   add code if currUser is truthy
   const currentUser = useSelector((state) => state.session.user);
 
   const songs = useSelector((state) => state.songs);
@@ -34,15 +34,19 @@ const handleNew = (e) => {
     <div className="song-comments">
       <div className="comments">
 
-      </div>
-<button onClick={handleNew}>Add Song</button>
-      <div>
+
         <ul className="song-list">
+          {currentUser &&
+          <div>
+          <div><button onClick={handleNew}>Add Song</button></div>
           <div className="songs">
-          {songsArr.map((song) => (
+
+            {songsArr.map((song) => (
             <SingleSong song={song} key={song.id} currentUser={currentUser} />
           ))}
           </div>
+          </div>}
+          {!currentUser && <div>Please login before viewing songs</div>}
         </ul>
 
       </div>

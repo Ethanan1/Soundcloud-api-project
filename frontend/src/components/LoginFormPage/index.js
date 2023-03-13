@@ -26,7 +26,7 @@ function LoginFormPage() {
 
 const handleDemoClick = (e) => {
 
-setCredential('ethan')
+setCredential('Demo-lition')
 setPassword('password')
 
 return dispatch(sessionActions.login({ credential, password })).catch(
@@ -68,7 +68,7 @@ return dispatch(sessionActions.login({ credential, password })).catch(
       </label>
 
       <button className='formbuttons' type="submit">Log In</button>
-      {/* <button className='formbuttons'  onClick={handleDemoClick}>Demo Log In</button> */}
+      <button className='formbuttons'  onClick={handleDemoClick}>Demo Log In</button>
     </form>
     </div>
 
