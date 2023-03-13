@@ -1,0 +1,22 @@
+.comment-bodybox {
+    border-width: 1px;
+    border-color:#25335a;
+    border-style:solid;
+    border-radius: 5px;
+    height: auto;
+    width: 500px;
+    background-color:aliceblue
+}
+
+.comment-text {
+    margin-left: 5px;
+    margin-top: 3px;
+    margin-bottom: 2px;
+    color: #25335a
+}
+
+#feed {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items:flex-start;
+}

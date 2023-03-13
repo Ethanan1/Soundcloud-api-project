@@ -1,0 +1,28 @@
+
+
+form {
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+}
+
+.input {
+    background-color: white;
+    margin-top: 5px;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+
+}
+
+.label {
+    display: inline;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+button {
+    margin-top: 5px;
+}

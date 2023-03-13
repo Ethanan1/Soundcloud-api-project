@@ -1,0 +1,105 @@
+
+#main-header{
+    display: flex;
+    padding: 10px;
+    margin: auto;
+    overflow: hidden;
+    background-color: #adadad;
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif
+}
+#main-header #mylinks{
+    padding: 10px;
+    margin-left: 90px;
+    background-color: #adadad;
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif
+}
+
+#main-header h1{
+    background-color: #adadad;
+    color: #25335a
+}
+#main-header button{
+width: 100px;
+}
+
+
+#navbar {
+width: 100%
+}
+
+#navbar ul {
+padding: 0;
+text-decoration: none;
+width: 100%;
+}
+
+#navbar li{
+ display: inline-block;
+ font-size: 22px;
+ padding-right: 15px;
+ text-decoration: none;
+}
+
+#navbar a:hover {
+    background-color: black;
+    color: white;
+    padding: 2px
+
+}
+
+#navbar a{
+    text-decoration: none;
+    color:aliceblue;
+    width: 100%;
+   }
+
+.container {
+    background-color: rgb(79, 78, 78);
+    padding: 1px;
+    height: 100%;
+    width: auto;
+}
+
+
+
+.active {
+
+margin: 10px;
+color: rgb(0, 0, 0);
+border-width: 3px;
+border-style: solid;
+border-color: rgb(255, 255, 255);
+border-radius: 5px;
+padding-left: 15px;
+padding-right: 15px;
+}
+
+
+/* PROFILE BUTTON */
+#profilediv {
+    margin: 0;
+    padding: 0;
+}
+.profileButton:hover {
+    background-color: black;
+    color: white
+}
+
+.profile-dropdown {
+ display: inline-flex;
+ flex-direction: column;
+}
+
+i {
+    padding-left: 10px;
+}
+
+.listItem {
+    list-style-type: none;
+}
+
+ ul .listItem:hover {
+    background-color: black;
+    color: white;
+    cursor:pointer
+ }
