@@ -44,6 +44,7 @@ module.exports = {
       {
         title: 'Good News',
         description: 'good news description',
+        url: 'url',
         userId: 3,
         albumId: 3,
         previewImage: 'https://wallpapercave.com/wp/wp7634462.jpg'
@@ -51,6 +52,7 @@ module.exports = {
       {
         title: 'More Time',
         description: 'More Time description',
+        url: 'url',
         userId: 3,
         albumId: 3,
         previewImage: 'https://wallpapercave.com/wp/wp7634462.jpg'
