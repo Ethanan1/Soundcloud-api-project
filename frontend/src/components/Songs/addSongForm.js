@@ -108,7 +108,7 @@ const AddSongForm = ({ song, formType }) => {
           onChange={(e) => setUrl(e.target.value)}
         ></input>
 
-        <label>Song Picture</label>
+        <label>Song Picture-copy img adress of desired pic</label>
         <input
           type="text"
           value={previewImage}
