@@ -15,7 +15,6 @@ const UserSongs = () => {
   const userSongsArr = songsArr.filter(song => {
     return song.userId === currentUser.id
   })
-console.log(userSongsArr, "USERS SONGS ARRAY")
 
   useEffect(() => {
     dispatch(getUserSongs());

@@ -98,12 +98,12 @@ const AddSongForm = ({ song, formType }) => {
           onChange={(e) => setDescription(e.target.value)}
         ></input>
 
-        <label>Song Link</label>
+        {/* <label>Song Link</label>
         <input
           type="text"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-        ></input>
+        ></input> */}
 
         <label>Song Picture</label>
         <input
