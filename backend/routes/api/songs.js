@@ -170,9 +170,8 @@ router.post("/:songId/comments", requireAuth, validateComment, async (req, res, 
   const { body } = req.body;
   const songId = req.params.songId;
   const userId = req.user.id;
-  const username = req.user.username
-  console.log(username, 'BACKEND USERNAME')
-  const song = await Song.findByPk(req.params.songId);
+  const username = req.user.username;
+  const song = await Song.findByPk(songId);
 
   if (!song || songId === null) {
     const err = new Error();
@@ -184,10 +183,37 @@ router.post("/:songId/comments", requireAuth, validateComment, async (req, res, 
     return next(err);
   }
 
-  const newComment = await song.createComment({ body: body, userId, username });
+  const comment = await Comment.create({
+    body,
+    userId,
+    songId,
+  });
 
-  res.json(newComment);
+  return res.json(comment);
 });
+
+// router.post("/:songId/comments", requireAuth, validateComment, async (req, res, next) => {
+//   const { body } = req.body;
+//   const songId = req.params.songId;
+//   const userId = req.user.id;
+//   const username = req.user.username
+//   console.log(username, 'BACKEND USERNAME')
+//   const song = await Song.findByPk(req.params.songId);
+
+//   if (!song || songId === null) {
+//     const err = new Error();
+//     err.status = 404;
+//     err.title = "songId does not exist";
+//     err.message = "Song could not be found";
+//     err.errors = ["Song not found"];
+
+//     return next(err);
+//   }
+
+//   const newComment = await song.createComment({ body: body, userId, username });
+
+//   res.json(newComment);
+// });
 
 //Get A COMMENT
 router.get("/:songId/comments", async (req, res, next) => {
