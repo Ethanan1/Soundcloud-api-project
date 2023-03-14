@@ -17,10 +17,10 @@ const validateSong = [
   check("title")
     .exists({ checkFalsy: true })
     .withMessage("Please provide a valid song title."),
-  check("url")
-    .exists({ checkFalsy: true })
-    .withMessage("Please provide song audio"),
-  handleValidationErrors,
+//   check("url")
+//     .exists({ checkFalsy: true })
+//     .withMessage("Please provide song audio"),
+//   handleValidationErrors,
 ];
 
 const validateComment = [
