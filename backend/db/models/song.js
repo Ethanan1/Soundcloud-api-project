@@ -31,7 +31,7 @@ module.exports = (sequelize, DataTypes) => {
   Song.init({
     title: DataTypes.STRING,
     description: DataTypes.STRING,
-    // urllink: DataTypes.STRING,
+    url: DataTypes.STRING,
     userId: DataTypes.INTEGER,
     albumId: DataTypes.INTEGER,
     previewImage: DataTypes.STRING

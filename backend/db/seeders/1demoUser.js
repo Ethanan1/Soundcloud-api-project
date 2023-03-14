@@ -17,7 +17,7 @@ module.exports = {
         email: 'Demolition@gmail.com',
         username: 'Demo-lition',
         hashedPassword: bcrypt.hashSync('password'),
-        // previewImage: 'image'
+        previewImage: 'image'
       },
       {
         firstName: 'Fake',
@@ -25,7 +25,7 @@ module.exports = {
         email: 'Fakeuser1@gmail.com',
         username: 'Fakeuser1',
         hashedPassword: bcrypt.hashSync('password'),
-        // previewImage: 'image'
+        previewImage: 'image'
       },
       {
         firstName: 'Fake',
@@ -33,7 +33,7 @@ module.exports = {
         email: 'Fakeuser2@gmail.com',
         username: 'Fakeuser2',
         hashedPassword: bcrypt.hashSync('password'),
-        // previewImage: 'image'
+        previewImage: 'image'
       },
     ], {});
   },

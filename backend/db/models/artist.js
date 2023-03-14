@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
     username: DataTypes.STRING,
     totalSongs: DataTypes.INTEGER,
     totalAlbums: DataTypes.INTEGER,
-    // previewImage: DataTypes.STRING
+    previewImage: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Artist',

@@ -20,10 +20,10 @@ module.exports = {
       description: {
         type: Sequelize.STRING
       },
-      // urllink: {
-      //   type: Sequelize.STRING,
+      url: {
+        type: Sequelize.STRING,
 
-      // },
+      },
       userId: {
         type: Sequelize.INTEGER,
         references: {

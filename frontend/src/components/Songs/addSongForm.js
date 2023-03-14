@@ -14,7 +14,7 @@ const AddSongForm = ({ song, formType }) => {
 
   const [title, setTitle] = useState(song.title);
   const [description, setDescription] = useState(song.description);
-  // const [url, setUrl] = useState(song.url);
+  const [url, setUrl] = useState(song.url);
 
   const [albumTitle, setAlbumTitle] = useState(song.albumTitle);
   const [previewImage, setPreviewImage] = useState(song.previewImage);
@@ -28,17 +28,18 @@ const AddSongForm = ({ song, formType }) => {
       const payload = {
         title,
         description,
-        // urllink,
+        url,
         previewImage,
         albumTitle,
       };
 
-      // const newSong = await dispatch(createSong(payload))
-      //   .then((song) => history.push(`/songs/${song.id}`))
-      //   .catch(async (res) => {
-      //     const data = await res.json();
-      //     if (data && data.errors) setErrors(data.errors);
-      //   }); // sending it to the Thunk and action and reducer to update the state
+      const newSong = await dispatch(createSong(payload))
+        .then((song) => history.push(`/songs/${song.id}`))
+        .catch(async (res) => {
+          const data = await res.json();
+          console.log(data.errors, "DATAAA for ERRORSSS");
+          if (data && data.errors) setErrors(data.errors);
+        }); // sending it to the Thunk and action and reducer to update the state
 
       // history.push("/songs");
 
@@ -48,14 +49,16 @@ const AddSongForm = ({ song, formType }) => {
         ...song,
         title,
         description,
-        // urllink,
+        url,
         previewImage,
         albumTitle,
       };
+      console.log(payload, " EDIT PAYLOAD");
       dispatch(updateSong(payload))
         .then((song) => history.push(`/songs/${song.id}`))
         .catch(async (res) => {
           const data = await res.json();
+          console.log(data.errors, "data errors");
           if (data && data.errors) setErrors(data.errors);
         });
     }
@@ -98,12 +101,12 @@ const AddSongForm = ({ song, formType }) => {
           onChange={(e) => setDescription(e.target.value)}
         ></input>
 
-        {/* <label>Song Link</label>
+        <label>Song Link</label>
         <input
           type="text"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-        ></input> */}
+        ></input>
 
         <label>Song Picture</label>
         <input

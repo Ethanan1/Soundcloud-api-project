@@ -17,10 +17,10 @@ const validateSong = [
   check("title")
     .exists({ checkFalsy: true })
     .withMessage("Please provide a valid song title."),
-//   check("url")
-//     .exists({ checkFalsy: true })
-//     .withMessage("Please provide song audio"),
-//   handleValidationErrors,
+  check("url")
+    .exists({ checkFalsy: true })
+    .withMessage("Please provide song audio"),
+  handleValidationErrors,
 ];
 
 const validateComment = [
@@ -170,8 +170,9 @@ router.post("/:songId/comments", requireAuth, validateComment, async (req, res, 
   const { body } = req.body;
   const songId = req.params.songId;
   const userId = req.user.id;
-  const username = req.user.username;
-  const song = await Song.findByPk(songId);
+  const username = req.user.username
+  console.log(username, 'BACKEND USERNAME')
+  const song = await Song.findByPk(req.params.songId);
 
   if (!song || songId === null) {
     const err = new Error();
@@ -183,37 +184,10 @@ router.post("/:songId/comments", requireAuth, validateComment, async (req, res, 
     return next(err);
   }
 
-  const comment = await Comment.create({
-    body,
-    userId,
-    songId,
-  });
+  const newComment = await song.createComment({ body: body, userId, username });
 
-  return res.json(comment);
+  res.json(newComment);
 });
-
-// router.post("/:songId/comments", requireAuth, validateComment, async (req, res, next) => {
-//   const { body } = req.body;
-//   const songId = req.params.songId;
-//   const userId = req.user.id;
-//   const username = req.user.username
-//   console.log(username, 'BACKEND USERNAME')
-//   const song = await Song.findByPk(req.params.songId);
-
-//   if (!song || songId === null) {
-//     const err = new Error();
-//     err.status = 404;
-//     err.title = "songId does not exist";
-//     err.message = "Song could not be found";
-//     err.errors = ["Song not found"];
-
-//     return next(err);
-//   }
-
-//   const newComment = await song.createComment({ body: body, userId, username });
-
-//   res.json(newComment);
-// });
 
 //Get A COMMENT
 router.get("/:songId/comments", async (req, res, next) => {

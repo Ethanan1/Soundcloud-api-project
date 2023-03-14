@@ -23,7 +23,7 @@ const SongPage = () => {
   const songs = useSelector((state) => state.songs);
 
   // const songArr = Object.values(songs)
-
+  let comment;
   let song;
   if (songs) {
     song = songs[songId];
@@ -74,11 +74,11 @@ const SongPage = () => {
           <button>Back To Songs</button>
         </a>
 
-         {/* <a href={song.url}>
+         <a href={song.url}>
           <button>
             Play <i className="fa-solid fa-play"></i>
           </button>
-        </a> */}
+        </a>
 
         <form id='comment-form' onSubmit={handleSubmit}>
           <h2>Comment Form</h2>
