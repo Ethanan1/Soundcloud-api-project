@@ -4,7 +4,7 @@ const CreateSongForm = () => {
   const song = {
     title: '',
     description: '',
-    url: '',
+    urllink: '',
     previewImage: '',
     albumTitle: ''
   };

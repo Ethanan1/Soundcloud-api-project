@@ -20,7 +20,7 @@ module.exports = {
       description: {
         type: Sequelize.STRING
       },
-      url: {
+      urllink: {
         type: Sequelize.STRING,
 
       },

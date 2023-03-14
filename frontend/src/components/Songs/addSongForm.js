@@ -28,7 +28,7 @@ const AddSongForm = ({ song, formType }) => {
       const payload = {
         title,
         description,
-        url,
+        urllink,
         previewImage,
         albumTitle,
       };
@@ -37,7 +37,6 @@ const AddSongForm = ({ song, formType }) => {
         .then((song) => history.push(`/songs/${song.id}`))
         .catch(async (res) => {
           const data = await res.json();
-          console.log(data.errors, "DATAAA for ERRORSSS");
           if (data && data.errors) setErrors(data.errors);
         }); // sending it to the Thunk and action and reducer to update the state
 
@@ -49,16 +48,14 @@ const AddSongForm = ({ song, formType }) => {
         ...song,
         title,
         description,
-        url,
+        urllink,
         previewImage,
         albumTitle,
       };
-      console.log(payload, " EDIT PAYLOAD");
       dispatch(updateSong(payload))
         .then((song) => history.push(`/songs/${song.id}`))
         .catch(async (res) => {
           const data = await res.json();
-          console.log(data.errors, "data errors");
           if (data && data.errors) setErrors(data.errors);
         });
     }

@@ -12,7 +12,7 @@ module.exports = {
       {
         title: 'Rich Flex',
         description: 'Good song description',
-        url: 'url',
+        urllink: 'url',
         userId: 1,
         albumId: 1,
         previewImage: 'https://i1.sndcdn.com/artworks-vQtytb3d8q8e-0-t500x500.jpg'
@@ -20,7 +20,7 @@ module.exports = {
       {
         title: 'Spin Bout U',
         description: 'Good beat description',
-        url: 'url',
+        urllink: 'url',
         userId: 1,
         albumId: 1,
         previewImage: 'https://i1.sndcdn.com/artworks-vQtytb3d8q8e-0-t500x500.jpg'
@@ -28,7 +28,7 @@ module.exports = {
       {
         title: 'Under the Influence',
         description: 'desription for u t i',
-        url: 'url',
+        urllink: 'url',
         userId: 2,
         albumId: 2,
         previewImage: 'https://upload.wikimedia.org/wikipedia/en/1/1f/Chris_Brown_-_Indigo.png'
@@ -36,7 +36,7 @@ module.exports = {
       {
         title: 'Red',
         description: 'red is a cool color',
-        url: 'url',
+        urllink: 'url',
         userId: 2,
         albumId: 2,
         previewImage: 'https://upload.wikimedia.org/wikipedia/en/1/1f/Chris_Brown_-_Indigo.png'
@@ -44,7 +44,7 @@ module.exports = {
       {
         title: 'Good News',
         description: 'good news description',
-        url: 'url',
+        urllink: 'url',
         userId: 3,
         albumId: 3,
         previewImage: 'https://wallpapercave.com/wp/wp7634462.jpg'
@@ -52,7 +52,7 @@ module.exports = {
       {
         title: 'More Time',
         description: 'More Time description',
-        url: 'url',
+        urllink: 'url',
         userId: 3,
         albumId: 3,
         previewImage: 'https://wallpapercave.com/wp/wp7634462.jpg'
