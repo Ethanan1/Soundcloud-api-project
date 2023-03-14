@@ -14,7 +14,7 @@ const AddSongForm = ({ song, formType }) => {
 
   const [title, setTitle] = useState(song.title);
   const [description, setDescription] = useState(song.description);
-  const [url, setUrl] = useState(song.url);
+  // const [url, setUrl] = useState(song.url);
 
   const [albumTitle, setAlbumTitle] = useState(song.albumTitle);
   const [previewImage, setPreviewImage] = useState(song.previewImage);
@@ -33,12 +33,12 @@ const AddSongForm = ({ song, formType }) => {
         albumTitle,
       };
 
-      const newSong = await dispatch(createSong(payload))
-        .then((song) => history.push(`/songs/${song.id}`))
-        .catch(async (res) => {
-          const data = await res.json();
-          if (data && data.errors) setErrors(data.errors);
-        }); // sending it to the Thunk and action and reducer to update the state
+      // const newSong = await dispatch(createSong(payload))
+      //   .then((song) => history.push(`/songs/${song.id}`))
+      //   .catch(async (res) => {
+      //     const data = await res.json();
+      //     if (data && data.errors) setErrors(data.errors);
+      //   }); // sending it to the Thunk and action and reducer to update the state
 
       // history.push("/songs");
 

@@ -1,10 +1,10 @@
 import { useDispatch, useSelector } from "react-redux";
 import { getSongs } from "../../store/songs";
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import "./songs.css";
 import SingleSong from "./SingleSong";
-import { NavLink, Link, useHistory } from "react-router-dom";
-import AllComments from "../Comments/AllComments";
+import { useHistory } from "react-router-dom";
+
 
 const SongsList = () => {
   const dispatch = useDispatch();
