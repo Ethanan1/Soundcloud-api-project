@@ -28,7 +28,7 @@ const AddSongForm = ({ song, formType }) => {
       const payload = {
         title,
         description,
-        urllink,
+        // urllink,
         previewImage,
         albumTitle,
       };
@@ -48,7 +48,7 @@ const AddSongForm = ({ song, formType }) => {
         ...song,
         title,
         description,
-        urllink,
+        // urllink,
         previewImage,
         albumTitle,
       };
