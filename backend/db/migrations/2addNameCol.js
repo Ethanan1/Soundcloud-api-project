@@ -21,17 +21,17 @@ module.exports = {
       allowNull: false,
     });
 
-    await queryInterface.addColumn(options, "previewImage", {
-      type: DataTypes.STRING(50),
-      allowNull: true,
-    });
+    // await queryInterface.addColumn(options, "previewImage", {
+    //   type: DataTypes.STRING(50),
+    //   allowNull: true,
+    // });
 
   },
 
   async down(queryInterface, Sequelize) {
     await queryInterface.removeColumn("Users", "firstName");
     await queryInterface.removeColumn("Users", "lastName");
-    await queryInterface.removeColumn("Users", "previewImage");
+    // await queryInterface.removeColumn("Users", "previewImage");
     await queryInterface.removeColumn("Users", "token");
   },
 };
