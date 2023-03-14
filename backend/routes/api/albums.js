@@ -30,10 +30,10 @@ router.get('/:albumId', async (req, res, next) => {
         include: [ {
             model: User,
             as: 'Artist',
-            attributes:['id', 'previewImage', 'username']
+            attributes:['id', 'username']
         },
         {model: Song,
-            attributes:['id', 'userId', 'albumId', 'title', 'description', 'url', 'createdAt', 'updatedAt', 'previewImage']}]
+            attributes:['id', 'userId', 'albumId', 'title', 'description', 'url', 'createdAt', 'updatedAt']}]
         })
 
 
@@ -55,13 +55,12 @@ router.get('/:albumId', async (req, res, next) => {
 
 //CREATE AN ALBUM
 router.post('/', requireAuth, async (req, res) => {
-  const { title, description, previewImage } = req.body;
+  const { title, description } = req.body;
   const userId = req.user.id
   const newAlbum = await Album.create(
     {
       title: title,
       description: description,
-      previewImage: previewImage,
       userId
     },
   );
@@ -74,7 +73,7 @@ router.post('/', requireAuth, async (req, res) => {
 
 //CREATE A SONG FOR AN ALBUM
 router.post('/:albumId/songs', requireAuth, async (req, res, next) => {
-        const { title, description, url, previewImage } = req.body
+        const { title, description, url } = req.body
 
         const albumId = req.params.albumId
         if (albumId) {
@@ -96,7 +95,6 @@ router.post('/:albumId/songs', requireAuth, async (req, res, next) => {
                 title,
                 description,
                 url,
-                previewImage,
                 albumId
             })
             res.status(201)
@@ -106,7 +104,7 @@ router.post('/:albumId/songs', requireAuth, async (req, res, next) => {
 
 //EDIT AN ALBUM
 router.put('/:albumId', async (req, res, next) => {
-const { title, description, previewImage } = req.body
+const { title, description } = req.body
 const album = await Album.findByPk(req.params.albumId)
 if (!album) {
     //title, status, errors(array), message
@@ -123,7 +121,6 @@ if (!album) {
 album.set({
     title: title,
     description: description,
-    previewImage: previewImage
 });
 
 await album.save();

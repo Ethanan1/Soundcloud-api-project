@@ -62,7 +62,6 @@ router.get("/:playlistId", async (req, res, next) => {
           "albumId",
           "title",
           "description",
-          "previewImage",
         ],
         through: { attributes: [] },
       },
@@ -74,7 +73,7 @@ router.get("/:playlistId", async (req, res, next) => {
 
 //CREATE A PLAYLIST
 router.post("/", requireAuth, async (req, res, next) => {
-  const { name, previewImage } = req.body;
+  const { name } = req.body;
   const userId = req.user.id;
 
   if (!name) {
@@ -90,7 +89,6 @@ router.post("/", requireAuth, async (req, res, next) => {
   const newPlaylist = await Playlist.create({
     userId,
     name: name,
-    previewImage: previewImage,
   });
 
   res.status(201);
@@ -142,7 +140,7 @@ router.post("/:playlistId/songs", requireAuth, async (req, res, next) => {
 //EDIT a PLAYLIST
 router.put('/:playlistId', requireAuth, validatePlaylist, async (req, res, next) => {
 const playlistId = req.params.playlistId
-const { name,  previewImage } = req.body
+const { name } = req.body
 
 if(playlistId) {
 const playlist = await Playlist.findByPk(playlistId)
@@ -160,7 +158,6 @@ const playlist = await Playlist.findByPk(playlistId)
 
    await playlist.set({
         name: name,
-        previewImage: previewImage
       });
 
       await playlist.save();
